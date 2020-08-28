@@ -6,6 +6,9 @@ write_sum_tab <- function(model, output){
   tab_model(model, file = out)
 }
 
+# function; calculation of convex hulls
+convex_hull <- function(data) data[chull(data$NMDS1, data$NMDS2),] 
+
 #######################################
 #### 1. MAP AND DEPTH DISTRIBUTION ####
 #######################################
@@ -95,3 +98,68 @@ combine_figs <- function(f1,f2,f3){
     theme(plot.tag = element_text(size = 14))
   ggsave("output/plots/Fig1_Labroides.png", Fig1, width = 9, height = 9)
 }
+
+################################
+#### 2. HABITAT PREFERENCES ####
+################################
+
+# process habitat data
+process_habitat <- function(data){
+  data %>% select(coral, zoospong, rock, rubble, sand, depth)
+}
+
+# run MDS on habitat data
+run_mds <- function(data.proc){
+  metaMDS(data.proc, distance = "bray")
+}
+
+
+# store MDS values and combine with metadata from wide format data
+store_mds_values <- function(mds.object, ...){
+as.tibble(scores(mds.object)) %>%
+  mutate(species = ...$species,
+         terrsize = ...$terrsize,
+         depth = ...$depth) %>% 
+  inner_join(...)
+}
+
+# store MDS points for drivers
+store_mds_points <- function(data, ...){
+  as.data.frame(scores(data, ...)) %>%
+  add_column(var = rownames(.))
+}
+
+# plots MDS results
+# ggplot with MDS results, location convex hulls, and SIMPER species highlighted
+plot_mds_results <- function(scores, hulls, points){
+  Fig2 <- ggplot(scores, aes(x = NMDS1, y = NMDS2)) +
+  #overlay convex hulls
+  geom_polygon(data = hulls, aes(x = NMDS1, y = NMDS2, 
+                                         fill = species), 
+               alpha = 0.4, lty = 1, lwd = 0.1, color = "grey23") +
+  #overlay points
+  geom_point(aes(fill = species, shape = as.factor(age)), color = "grey23", size = 2) +
+  geom_segment(data = points, aes(x=0, xend=NMDS1, y=0, yend=NMDS2),
+               arrow = arrow(length = unit(0.2, "cm")), color = "grey23", lwd = 0.25,
+               inherit.aes = F) +
+  geom_text_repel(data = points, aes(x=NMDS1, NMDS2, label=var), size=3.5, inherit.aes = F) +
+  theme_bw()+
+  theme(legend.position = c(0.8, 0.9),
+        legend.title = element_blank(),
+        legend.box = "horizontal",
+        axis.text = element_text(color = "black", size = 12),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        legend.text = element_text(face = "italic", size = 10),
+        legend.background = element_blank()) +
+  scale_color_fish_d(option = "Acanthurus_leucosternon") +
+  scale_fill_fish_d(option = "Acanthurus_leucosternon") +
+  scale_shape_manual(values = c(21,23), labels = c("adult", "juvenile")) +
+  xlab("NMDS1") +
+  ylab("NMDS2") +
+  scale_y_continuous(limits = c(-1.25, 1.25), breaks = seq(-1.25, 1.25, 0.25)) +
+  scale_x_continuous(limits = c(-1.5, 1), breaks = seq(-1.5, 1, 0.25))
+  ggsave("output/plots/Fig2_Labroides.png", Fig2, width = 8, height = 6)
+}
+
+

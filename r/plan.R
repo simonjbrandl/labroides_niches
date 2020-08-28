@@ -56,11 +56,33 @@ plan <- drake_plan(
   pinnacle.plot = plot_depth_dist_pinn(depth.pinnacle),
   
   # combine figures for Fig1
-  fig1 = combine_figs(output.fig1a, hoga.plot, pinnacle.plot)
+  fig1 = combine_figs(output.fig1a, hoga.plot, pinnacle.plot),
   
   ################################
   #### 2. HABITAT PREFERENCES ####
   ################################
+  
+  # process habitat
+  habitat.processed = process_habitat(habitat),
+  
+  # run mds 
+  hab.mds = run_mds(habitat.processed),
+  
+  # run permanova and dispersion test
+  hab.perm = adonis(habitat.processed ~ species, habitat, distance = "bray"),
+  hab.disp = betadisper(vegdist(habitat.processed, distance = "Bray"), habitat$species),
+  p.test = permutest(hab.disp, pairwise = TRUE, permutations = 999),
+  
+  # store mds values
+  hab.scores = store_mds_values(hab.mds, habitat),
+  mds.points = store_mds_points(hab.mds, "species"),
+  
+  # calculate species hulls
+  species.hulls = plyr::ddply(hab.scores, "species", convex_hull),
+  
+  # plot mds results
+  fig2 = plot_mds_results(hab.scores, species.hulls, mds.points),
+  
   
   
   
