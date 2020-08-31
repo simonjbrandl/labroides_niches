@@ -26,7 +26,8 @@ list.of.packages <- c(
   "devtools",
   "rworldmap",
   "rnaturalearth",
-  "rnaturalearthdata"
+  "rnaturalearthdata",
+  "clickR"
   )
 
 # install if needed

@@ -162,4 +162,134 @@ plot_mds_results <- function(scores, hulls, points){
   ggsave("output/plots/Fig2_Labroides.png", Fig2, width = 8, height = 6)
 }
 
+#################################
+#### 3. TEMPORAL DIFFERENCES ####
+#################################
+
+# function to process temporal data
+process_temporal <- function(data){
+  data %>%
+    pivot_longer(c(4:12), names_to = "time", values_to = "value") %>%
+    mutate(tod = case_when(grepl("am", time) ~ "am",
+                           grepl("noon", time) ~ "noon",
+                           grepl("pm", time) ~ "pm")) %>%
+    mutate(variable = case_when(grepl("spp", time) ~ "nb_spec",
+                                grepl("client", time) ~ "nb_client",
+                                grepl("time", time) ~ "seconds")) %>%
+    select(-time) %>%
+    pivot_wider(names_from = variable, values_from = value)%>%
+    filter(nb_spec > 0)
+}
+
+# function to filter temporal data by species; necessary because no full representation of all species across stations and times
+split_temp_data <- function(data, ...){
+  data %>% filter(species == ...)
+}
+
+# generic brms function for temporal models
+#' @param response specify response variable
+#' @param dataset data to be used
+#' @param ... flexible descriptor for family
+run_brms_temp <- function(response, dataset, ...){
+  brm(paste0(response," ~ tod + (1|station)"),
+      data = dataset, family = ...,
+      control = list(adapt_delta = 0.95, max_treedepth = 10), iter = 5000)
+}
+
+# generic brms function for temporal models
+#' @param response specify response variable
+#' @param dataset data to be used
+#' @param ... flexible descriptor for family
+run_brms_temp_norand <- function(response, dataset, ...){
+  brm(paste0(response," ~ tod"),
+      data = dataset, family = ...,
+      control = list(adapt_delta = 0.95, max_treedepth = 10), iter = 5000)
+}
+
+# species specific behaviors
+# function to summarize across different time periods for all species
+
+summarize_temporal <- function(data){
+  data %>%
+  group_by(species, station) %>%
+  summarize(mean_nb_spec = mean(nb_spec),
+            mean_nb_client = mean(nb_client),
+            mean_seconds = mean(seconds))
+}
+
+# generic function to analyze species-specific differences
+#' @param response specify response variable
+#' @param dataset data to be used
+#' @param ... flexible descriptor for family
+run_brms_species <- function(response, dataset){
+  brm(paste0("log(", response,") ~ species"),
+      data = dataset,
+      control = list(adapt_delta = 0.95, max_treedepth = 10), iter = 5000)
+}
+
+
+
+# predict from models
+# generic predict function for morphology
+#' @param raw raw data the model was run on
+#' @param ... variables in the model
+#' @param mod brms model object
+#' @param draws number of draws from posterior
+#' @param backtrans logical backtransform predictions
+#' @param transform type of backtransformation to apply
+
+predict_from_brms <- function(raw, ..., mod, draws, backtrans = F, transform = NA){
+  
+  if (backtrans & is.na(transform)){
+    stop("Need to specify transformation")
+  }
+  
+  prediction.new <- raw %>%
+    modelr::data_grid(...) %>%
+    add_fitted_draws(mod, n = draws) %>%
+    as_tibble()
+  
+  if (backtrans){
+    if (transform == "exp"){
+      value <- exp(prediction.new$.value)
+    } else if (transform == "e10"){
+      value <- 10^prediction.new$.value
+    }
+    prediction.new <- prediction.new %>%
+      mutate(pred.corr = value)
+  }
+  return(prediction.new)
+}
+
+# plot predictions for nbspec
+plot_nbspec = function(newdata, rawdata, expr)
+Fig3A <-  ggplot(newdata, aes(x = species, y = pred.corr, fill = species)) +
+  geom_violin(trim = T, draw_quantiles = c(0.025,0.5,0.975), color = "grey23", alpha = 0.5, position = position_dodge(width = 0.5)) +
+  geom_jitter(data = rawdata, aes(x = species, y = mean_nb_spec, group = species, fill = species), position = position_jitterdodge(jitter.width = 0.5, dodge.width = 0.5), alpha = 0.5, color = "grey23", shape = 23) +
+  theme_bw() + theme(legend.position = "none",
+                     axis.text = element_text(color = "black", size = 12),
+                     panel.grid = element_blank(),
+                     axis.text.x = element_text(face = "italic", angle = 45, hjust = 1),
+                     axis.title = element_text(color = "black", size = 12)) +
+  ylab(expression(expr)) +
+  xlab("") +
+  scale_color_fish_d(option = "Acanthurus_leucosternon") +
+  scale_fill_fish_d(option = "Acanthurus_leucosternon") +
+  scale_y_continuous(limits = c(0,20), breaks = seq(0,20,2)) +
+  add_fishape(family = "Labridae",
+              option = "Labroides_bicolor", scaled = TRUE,
+              xmin = 0, xmax = 0.3, ymin = 0.9, ymax = 1,
+              xlim = c(0.5,3.5), ylim = c(0,20),
+              fill = fish(option = "Acanthurus_leucosternon", n = 5)[1])+
+  add_fishape(family = "Labridae",
+              option = "Labroides_dimidiatus", scaled = TRUE,
+              xmin = 0.35, xmax = 0.65, ymin = 0.9, ymax = 1,
+              xlim = c(0.5,3.5), ylim = c(0,20),
+              fill = fish(option = "Acanthurus_leucosternon", n = 5)[3])+
+  add_fishape(family = "Labridae",
+              option = "Labroides_pectoralis",scaled = TRUE,
+              xmin = 0.7, xmax = 1, ymin = 0.9, ymax = 1,
+              xlim = c(0.5,3.5), ylim = c(0,20),
+              fill = fish(option = "Acanthurus_leucosternon", n = 5)[5])
+
 
