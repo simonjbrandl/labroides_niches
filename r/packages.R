@@ -14,7 +14,7 @@ list.of.packages <- c(
   "vegan",
   "ggfortify",
   "bipartite",
-  #"geomnet",
+  "geomnet",
   "GGally",
   "fishualize",
   "iNEXT",

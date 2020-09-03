@@ -161,9 +161,83 @@ plan <- drake_plan(
   
   # plot results
   output.fig3a = plot_nbspec(newdata = nbspec.pred,
-                             rawdata = temp.sum,
-                             expr = Species~cleaned~(number~of~species~"15min"^{-1}))
+                             rawdata = temp.sum, mean_nb_spec,
+                             expr = expression(Species~cleaned~(number~of~species~"15min"^{-1})),
+                             uppery = 20,
+                             breaky = 2),
   
+  output.fig3b = plot_nbspec(newdata = nbclients.pred,
+                             rawdata = temp.sum, mean_nb_client,
+                             expr = expression(Clients~cleaned~(individuals~"15min"^{-1})),
+                             uppery = 70,
+                             breaky = 10),
+  
+  output.fig3c = plot_nbspec(newdata = seconds.pred,
+                             rawdata = temp.sum, mean_seconds,
+                             expr = expression(Time~spent~cleaning~(s~"15min"^{-1})),
+                             uppery = 900,
+                             breaky = 100),
+  
+  # combine Figure 3 
+  output.fig3 = combine_figs_3(output.fig3a, output.fig3b, output.fig3c),
+  
+  
+  #########################
+  #### 4. INTERACTIONS ####
+  #########################
+  # processing for counts: common names and scientific names
+  fishcounts.meta = process_counts(fish.abun, fishID.all),
+  
+  # process interactions for network plot
+  cleaning.network.fam = inter_for_network(clean.interac, clean.clients, clean.stations),
+  
+  # plot cleaning network
+  output.fig4 = plot_network_results(cleaning.network.fam),
+  ## FIGURE TO BE MODIFIED IN ADOBE ILLUSTRATOR
+  
+  # process data for mds
+  cleaning.mds = inter_for_network_mds(clean.interac, clean.clients, clean.stations),
+  
+  # run mds 
+  clean.mds = run_mds(cleaning.mds[-c(1:2)]),
+  # store values and calculate polygons
+  clean.scores = store_mds_values_clean(clean.mds,cleaning.mds),
+  # calculate species hulls
+  clean.hulls = plyr::ddply(clean.scores, "species", convex_hull),
+  
+  # run SIMPER and get results
+  clean.simper = create_simper(cleaning.mds),
+  
+  # extract results for species pairs 
+  simper.pairs1 = get_simper_pairs(clean.simper, 1), #2 vs 3
+  simper.pairs2 = get_simper_pairs(clean.simper, 2), #3 vs 1
+  simper.pairs3 = get_simper_pairs(clean.simper, 3), #2 vs 1
+  
+  sim.res = store_simper(simper.pairs1, simper.pairs2, simper.pairs3),
+  
+  sim.coords = get_simper_coords(cleaning.mds, sim.res),
+  
+  # # run permanova and dispersion test
+  # hab.perm = adonis(habitat.processed ~ species, habitat, distance = "bray"),
+  # hab.disp = betadisper(vegdist(habitat.processed, distance = "Bray"), habitat$species),
+  # p.test = permutest(hab.disp, pairwise = TRUE, permutations = 999),
+  # 
+  # # store mds values
+  # hab.scores = store_mds_values(hab.mds, habitat),
+  # mds.points = store_mds_points(hab.mds, "species"),
+  # 
+  # # calculate species hulls
+  # species.hulls = plyr::ddply(hab.scores, "species", convex_hull),
+  # 
+  # # plot mds results
+  # fig2 = plot_mds_results(hab.scores, species.hulls, mds.points),
+  
+  
+  # process interaction data by combining interactions, clients, and stations
+  clean.inter.proc = process_cleaning_interactions(clean.interac, clean.clients, clean.stations),
+  
+  # get helper for relative abundances of clients
+  rel.abus.helper = get_rel_abus(clean.inter.proc, fishcounts.meta)
   
 )
 

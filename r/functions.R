@@ -110,7 +110,7 @@ process_habitat <- function(data){
 
 # run MDS on habitat data
 run_mds <- function(data.proc){
-  metaMDS(data.proc, distance = "bray")
+  metaMDS(data.proc, distance = "bray", k = 2, trymax = 1000)
 }
 
 
@@ -262,34 +262,156 @@ predict_from_brms <- function(raw, ..., mod, draws, backtrans = F, transform = N
 }
 
 # plot predictions for nbspec
-plot_nbspec = function(newdata, rawdata, expr)
+plot_nbspec = function(newdata, rawdata, ..., expr, uppery, breaky)
 Fig3A <-  ggplot(newdata, aes(x = species, y = pred.corr, fill = species)) +
   geom_violin(trim = T, draw_quantiles = c(0.025,0.5,0.975), color = "grey23", alpha = 0.5, position = position_dodge(width = 0.5)) +
-  geom_jitter(data = rawdata, aes(x = species, y = mean_nb_spec, group = species, fill = species), position = position_jitterdodge(jitter.width = 0.5, dodge.width = 0.5), alpha = 0.5, color = "grey23", shape = 23) +
+  geom_jitter(data = rawdata, aes(x = species, y = ..., group = species, fill = species), position = position_jitterdodge(jitter.width = 0.5, dodge.width = 0.5), alpha = 0.5, color = "grey23", shape = 23) +
   theme_bw() + theme(legend.position = "none",
                      axis.text = element_text(color = "black", size = 12),
                      panel.grid = element_blank(),
                      axis.text.x = element_text(face = "italic", angle = 45, hjust = 1),
                      axis.title = element_text(color = "black", size = 12)) +
-  ylab(expression(expr)) +
+  ylab(expr) +
   xlab("") +
   scale_color_fish_d(option = "Acanthurus_leucosternon") +
   scale_fill_fish_d(option = "Acanthurus_leucosternon") +
-  scale_y_continuous(limits = c(0,20), breaks = seq(0,20,2)) +
+  scale_y_continuous(limits = c(0,uppery), breaks = seq(0,uppery,breaky)) +
   add_fishape(family = "Labridae",
               option = "Labroides_bicolor", scaled = TRUE,
               xmin = 0, xmax = 0.3, ymin = 0.9, ymax = 1,
-              xlim = c(0.5,3.5), ylim = c(0,20),
+              xlim = c(0.5,3.5), ylim = c(0,uppery),
               fill = fish(option = "Acanthurus_leucosternon", n = 5)[1])+
   add_fishape(family = "Labridae",
               option = "Labroides_dimidiatus", scaled = TRUE,
               xmin = 0.35, xmax = 0.65, ymin = 0.9, ymax = 1,
-              xlim = c(0.5,3.5), ylim = c(0,20),
+              xlim = c(0.5,3.5), ylim = c(0,uppery),
               fill = fish(option = "Acanthurus_leucosternon", n = 5)[3])+
   add_fishape(family = "Labridae",
               option = "Labroides_pectoralis",scaled = TRUE,
               xmin = 0.7, xmax = 1, ymin = 0.9, ymax = 1,
-              xlim = c(0.5,3.5), ylim = c(0,20),
+              xlim = c(0.5,3.5), ylim = c(0,uppery),
               fill = fish(option = "Acanthurus_leucosternon", n = 5)[5])
+
+# combine figs
+combine_figs_3 <- function(f1,f2,f3){
+  Fig3 <- f1 | f2 | f3 + plot_annotation(tag_levels = 'A') & 
+    theme(plot.tag = element_text(size = 14))
+  ggsave("output/plots/Fig3_Labroides.png", Fig3, width = 10, height = 5)
+}
+
+#########################
+#### 4. INTERACTIONS ####
+#########################
+
+# function to process count data
+process_counts = function(raw, ID){
+  raw %>%
+  left_join(ID) %>%
+  select(-species_common) %>%
+  pivot_longer(cols = 1:36, names_to = "site", values_to = "abun") %>%
+  group_by(species_scientific, family) %>%
+  summarize(mean.abun = mean(abun)) %>%
+  ungroup() %>%
+  mutate(species_scientific = sub(" ", ".", species_scientific, ))
+}
+
+# function to process interaction data for network plot
+inter_for_network <- function(interactions, clients, stations){
+  interactions %>%
+    pivot_longer(names_to = "station", values_to = "interaction", -species_common) %>%
+    left_join(clients[-4]) %>%
+    left_join(stations) %>%
+    group_by(family, species) %>%
+    summarize(sum.interaction = sum(interaction)) %>%
+    group_by(species) %>%
+    mutate(rel.inter = sum.interaction/sum(sum.interaction)) %>%
+    filter(rel.inter > 0)
+}
+
+# function to plot network
+plot_network_results <- function(interactions){
+  Fig4 <- ggplot(data = interactions) +
+    geom_net(layout.alg = "circle", aes(from_id = family, to_id = species,  linewidth = rel.inter*7), 
+             labelon = T, repel = TRUE, curvature = 0,directed = F,  size = 3) +
+    theme_net() +
+    theme(legend.position = "top") +
+    scale_color_fish_d(option = "Acanthurus_leucosternon")
+  ggsave("output/plots/Fig4_Labroides.pdf", Fig4, width = 10, height = 10, useDingbats = F)
+}
+  
+# function to process data for interaction MDS (Supp. Fig.)
+inter_for_network_mds <- function(interactions, clients, stations){
+  interactions %>%
+    pivot_longer(names_to = "station", values_to = "interaction", -species_common) %>%
+    left_join(clients[-4]) %>%
+    left_join(stations) %>%
+    select(-family, -species_common) %>% 
+    group_by(station) %>%
+    mutate(rel.inter = interaction/sum(interaction))%>%
+    select(-interaction) %>% 
+    pivot_wider(names_from = species_scientific, values_from = rel.inter, values_fill = list(rel.inter = 0))
+}
+
+# compile cleaning interaction mds data
+# store MDS values and combine with metadata from wide format data
+store_mds_values_clean <- function(mds.object, ...){
+  as.tibble(scores(mds.object)) %>%
+    mutate(station = ...$station) %>% 
+    inner_join(...)
+}
+
+# function to get SIMPER results in clean data
+create_simper <- function(mds.data){
+  summary(as.list(simper(mds.data[-c(1:2)], mds.data$species)))
+}
+
+# function to extract results for every species pair
+get_simper_pairs <- function(simperdata, ...){
+  as.data.frame(simperdata[[...]]) %>%
+    mutate(species_scientific = rownames(.)) %>%
+    filter(average >0.025)
+}
+
+# function to combine simper results with mds points
+store_simper <- function(sim1, sim2, sim3){
+  bind_rows(sim1, sim2, sim3) %>%
+  select(species_scientific) %>%
+  distinct()
+}
+
+# co,mbine mds coordinates with SIMPER
+get_simper_coords <- function(mds, simp){
+  as.data.frame(scores(mds, "species")) %>%
+    add_column(species_scientific = rownames(.)) %>%
+    right_join(simo)
+}
+
+
+# function to process interaction data
+process_cleaning_interactions <- function(interactions, clients, stations){
+interactions %>%
+  pivot_longer(names_to = "station", values_to = "interaction", -species_common) %>%
+  left_join(clients[-4]) %>%
+  left_join(stations) %>%
+  group_by(species_scientific, station) %>%
+  summarize(avg.interaction = mean(interaction)) %>%
+  ungroup() %>%
+  group_by(station) %>%
+  mutate(rel.inter = avg.interaction/sum(avg.interaction)) %>%
+  select(-avg.interaction) %>% 
+  pivot_wider(names_from = species_scientific, values_from = rel.inter, values_fill = list(rel.inter = 0))%>%
+  data.frame()
+}
+
+
+# function to create helper with clients and relative abundances
+get_rel_abus <- function(interactions, metadata){
+  as.data.frame(colnames(interactions[-1])) %>%
+  rename(species_scientific = 1) %>%
+  left_join(metadata) %>%
+  select(-family) %>%
+  replace_na(list(mean.abun = 0.01))
+}
+
 
 
