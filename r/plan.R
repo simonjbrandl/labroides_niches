@@ -215,7 +215,11 @@ plan <- drake_plan(
   
   sim.res = store_simper(simper.pairs1, simper.pairs2, simper.pairs3),
   
-  sim.coords = get_simper_coords(cleaning.mds, sim.res),
+  # combine with mds coordinates
+  sim.coords = get_simper_coords(clean.mds, sim.res),
+  
+  # plot interaction MDS
+  output.figs2 = plot_clean_mds(clean.scores, clean.hulls, sim.coords),
   
   # # run permanova and dispersion test
   # hab.perm = adonis(habitat.processed ~ species, habitat, distance = "bray"),

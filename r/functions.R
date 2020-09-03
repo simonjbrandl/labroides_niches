@@ -379,14 +379,41 @@ store_simper <- function(sim1, sim2, sim3){
   distinct()
 }
 
-# co,mbine mds coordinates with SIMPER
-get_simper_coords <- function(mds, simp){
-  as.data.frame(scores(mds, "species")) %>%
+# combine mds coordinates with SIMPER
+get_simper_coords <- function(mdsdata, simp){
+  as.data.frame(scores(mdsdata, "species")) %>%
     add_column(species_scientific = rownames(.)) %>%
-    right_join(simo)
+    right_join(simp)
 }
 
-
+# plot cleaning-interaction mds
+plot_clean_mds <- function(scores, hulls, points){
+  FigS2 <- ggplot(scores, aes(x = NMDS1, y = NMDS2)) +
+  #overlay convex hulls
+  geom_polygon(data = hulls, aes(x = NMDS1, y = NMDS2, 
+                                         fill = as.factor(species)), 
+               alpha = 0.4, lty = 1, lwd = 0.1, color = "grey23") +
+  #overlay points
+  geom_point(aes(fill = as.factor(species)), color = "grey23", size = 2, shape = 23) +
+  geom_segment(data = points, aes(x=0, xend=NMDS1, y=0, yend=NMDS2),
+               arrow = arrow(length = unit(0.2, "cm")), color = "grey23", lwd = 0.1,
+               inherit.aes = F) +
+  geom_text_repel(data = points, aes(x=NMDS1, NMDS2, label = species_scientific), size=3, inherit.aes = F) +
+  theme_bw()+
+  theme(legend.position = c(0.1, 0.9),
+        legend.title = element_blank(),
+        legend.box = "horizontal",
+        axis.text = element_text(color = "black", size = 12),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        legend.text = element_text(face = "italic", size = 10),
+        legend.background = element_blank()) +
+  scale_color_fish_d(option = "Acanthurus_leucosternon") +
+  scale_fill_fish_d(option = "Acanthurus_leucosternon") +
+  xlab("NMDS1") +
+  ylab("NMDS2") 
+ggsave("output/plots/FigS2.pdf", FigS2, width = 8, height = 6, useDingbats = TRUE)
+}
 # function to process interaction data
 process_cleaning_interactions <- function(interactions, clients, stations){
 interactions %>%
