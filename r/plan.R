@@ -182,9 +182,11 @@ plan <- drake_plan(
   output.fig3 = combine_figs_3(output.fig3a, output.fig3b, output.fig3c),
   
   
-  #########################
-  #### 4. INTERACTIONS ####
-  #########################
+  ####################
+  #### 4. NETWORK ####
+  ####################
+
+  
   # processing for counts: common names and scientific names
   fishcounts.meta = process_counts(fish.abun, fishID.all),
   
@@ -195,6 +197,9 @@ plan <- drake_plan(
   output.fig4 = plot_network_results(cleaning.network.fam),
   ## FIGURE TO BE MODIFIED IN ADOBE ILLUSTRATOR
   
+  ####################
+  ##### 4B. NMDS #####
+  ####################
   # process data for mds
   cleaning.mds = inter_for_network_mds(clean.interac, clean.clients, clean.stations),
   
@@ -221,30 +226,121 @@ plan <- drake_plan(
   # plot interaction MDS
   output.figs2 = plot_clean_mds(clean.scores, clean.hulls, sim.coords),
   
-  # # run permanova and dispersion test
-  # hab.perm = adonis(habitat.processed ~ species, habitat, distance = "bray"),
-  # hab.disp = betadisper(vegdist(habitat.processed, distance = "Bray"), habitat$species),
-  # p.test = permutest(hab.disp, pairwise = TRUE, permutations = 999),
-  # 
-  # # store mds values
-  # hab.scores = store_mds_values(hab.mds, habitat),
-  # mds.points = store_mds_points(hab.mds, "species"),
-  # 
-  # # calculate species hulls
-  # species.hulls = plyr::ddply(hab.scores, "species", convex_hull),
-  # 
-  # # plot mds results
-  # fig2 = plot_mds_results(hab.scores, species.hulls, mds.points),
-  
+  #############################
+  ##### 5. SPECIALIZATION #####
+  #############################
   
   # process interaction data by combining interactions, clients, and stations
   clean.inter.proc = process_cleaning_interactions(clean.interac, clean.clients, clean.stations),
   
   # get helper for relative abundances of clients
-  rel.abus.helper = get_rel_abus(clean.inter.proc, fishcounts.meta)
+  rel.abus.helper = get_rel_abus(clean.inter.proc, fishcounts.meta),
   
+  # calculate d-values
+  d.vals = get_d_vals(clean.inter.proc[-1], rel.abus.helper),
+  
+  # get species-specific indices
+  d.species = get_spec_indices(d.vals, clean.inter.proc, clean.stations),
+  
+  # analyze speciualization indices
+  d.model = run_brms_d("special", d.species),
+  
+  # predict d values from model
+  d.prediction = predict_from_brms(raw = d.species, 
+                                   speciesname, 
+                                   mod= d.model, 
+                                   draws = 1000),
+  
+  # plot specialization results
+  output.fig5 = plot_specialization(d.prediction, d.species),
+  
+  ##############################
+  #### 6. CLIENT ATTRIBUTES ####
+  ##############################
+  
+  # process client data
+  clients.proc = process_clients(client.size, rel.abus.helper),
+  
+  # analyze each species for client preferences
+  ldim.clients = run_brms_client("L.dimidiatus", clients.proc, bernoulli),
+  lpec.clients = run_brms_client("L.pectoralis", clients.proc, bernoulli),
+  lbic.clients = run_brms_client("L.bicolor", clients.proc, bernoulli),
+  
+  # predict for each model
+  
+  # L. dimidiatus
+  ldim.pred.abu = predict_from_brms_client(raw = clients.proc,
+                                           v1 = clients.proc$client_size,
+                                           v2 = clients.proc$log.mean.abun,
+                                           mod = ldim.clients,
+                                           draws = 100,
+                                           name = "L. dimidiatus",
+                                           size = F),
+  
+  ldim.pred.size = predict_from_brms_client(raw = clients.proc,
+                                            v1 = clients.proc$client_size,
+                                            v2 = clients.proc$log.mean.abun,
+                                           mod = ldim.clients,
+                                           draws = 100,
+                                           name = "L. dimidiatus",
+                                           size = T),
+  
+  # L. pectoralis
+  lpec.pred.abu = predict_from_brms_client(raw = clients.proc,
+                                           v1 = clients.proc$client_size,
+                                           v2 = clients.proc$log.mean.abun,
+                                           mod = lpec.clients,
+                                           draws = 100,
+                                           name = "L. pectoralis",
+                                           size = F),
+  
+  lpec.pred.size = predict_from_brms_client(raw = clients.proc,
+                                            v1 = clients.proc$client_size,
+                                            v2 = clients.proc$log.mean.abun,
+                                            mod = lpec.clients,
+                                            draws = 100,
+                                            name = "L. pectoralis",
+                                            size = T),
+  
+  # L. bicolor
+  lbic.pred.abu = predict_from_brms_client(raw = clients.proc,
+                                           v1 = clients.proc$client_size,
+                                           v2 = clients.proc$log.mean.abun,
+                                           mod = lbic.clients,
+                                           draws = 100,
+                                           name = "L. bicolor",
+                                           size = F),
+  
+  lbic.pred.size = predict_from_brms_client(raw = clients.proc,
+                                            v1 = clients.proc$client_size,
+                                            v2 = clients.proc$log.mean.abun,
+                                            mod = lbic.clients,
+                                            draws = 100,
+                                            name = "L. bicolor",
+                                            size = T),
+  
+  # combine predictions for both explanatory variables
+  p.size = combine_predictions(ldim.pred.size, lpec.pred.size, lbic.pred.size),
+  p.abu = combine_predictions(ldim.pred.abu, lpec.pred.abu, lbic.pred.abu),
+  
+  # plot predictions
+  output.fig6a = plot_bernoulli_models(predictions = p.size,
+                                       client_size,
+                                       size = T,
+                                       expr = "Maximum size of client species (cm)",
+                                       lowerx = 5,
+                                       upperx = 130,
+                                       breaks = 25),
+  
+  output.fig6b = plot_bernoulli_models(predictions = p.abu,
+                                       mean.abun,
+                                       size = F,
+                                       expr = expression(Abundance~of~client~species~(individuals~"25m"^{-2}))),
+  
+  output.fig6 = comb_fig6(output.fig6a, output.fig6b),
 )
 
+#### end of plan script ####
   
 
   
