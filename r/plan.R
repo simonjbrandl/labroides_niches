@@ -19,7 +19,6 @@ plan <- drake_plan(
   clean.interac = read.csv(file = "data/labroides_cleaninginteractions_sjb.csv"),
   clean.clients = read.csv(file = "data/labroides_clients_meta_sjb.csv"),
   clean.stations = read.csv(file = "data/labroides_sites_meta_sjb.csv"),
-  fishID.helper = read.csv(file = "data/fishID_helper.csv"),
   fishID.all = read.csv(file = "data/fishID.merged.all.csv"),
   fish.abun = read.csv(file = "data/labroides_fishcounts_sjb.csv"),
   client.size = read.csv(file = "data/labroides_client_sizes.csv") %>%

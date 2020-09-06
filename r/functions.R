@@ -502,10 +502,6 @@ ggsave("output/plots/Fig5_Labroides.pdf", Fig5, width = 6, height = 6)
 }
 
 
-# run niche partitioning analysis
-niche.part = run_niche_null(clean.inter.proc)
-
-
 ##############################
 #### 6. CLIENT ATTRIBUTES ####
 ##############################
@@ -618,5 +614,6 @@ run_niche_null <- function(data){
                                        algo="ra3", metric="pianka", 
                                        suppressProg=TRUE,nReps=1000)
 }
- 
+
+
 #### end of function script #### 
