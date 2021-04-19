@@ -24,6 +24,9 @@ plan <- drake_plan(
   client.size = read.csv(file = "data/labroides_client_sizes.csv") %>%
     left_join(fishID.all),
   
+  # load image for detailed map
+  hoga.map.small = readPNG("output/plots/Hoga_Map.png", native = TRUE),
+  
   ######################
   #### II. ANALYSIS ####
   ######################
@@ -34,15 +37,20 @@ plan <- drake_plan(
   ########################
   ########################
   
-  # identify study site by GPS coordinates
+  # identify study sites by GPS coordinates
   study.loc = data.frame("lat" = -5.472212, "long" = 123.763191),
+  hoga.sites = data.frame("site" = c("Hoga Home", "Pinnacle"), 
+                          "lat" = c(-5.472292, 5.447962), 
+                          "long" = c(123.757001, 123.75389)),
+
   
   # extract map of Indonesia
   indonesia = ne_countries(scale = "large", returnclass = "sf", country = "Indonesia"),
   
-  # plot map: Fig1A
-  output.fig1a = plot_map(indonesia, study.loc),
   
+  # plot map: Fig1A
+  output.fig1a = plot_map(indonesia, study.loc, hoga.map.small),
+
   # process depth data to round depth estimates and name sites
   depth.proc = process_depth_data(depth),
   

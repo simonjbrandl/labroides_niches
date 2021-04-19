@@ -27,6 +27,9 @@ list.of.packages <- c(
   "rworldmap",
   "rnaturalearth",
   "rnaturalearthdata",
+  "rnaturalearthhires",
+  "png",
+  "cowplot",
   "clickR"
   )
 
@@ -45,3 +48,4 @@ if (!"geomnet" %in% installed.packages()){
 # load all packages
 lapply(list.of.packages, function(x){
   library(x, character.only = TRUE)})
+

@@ -14,14 +14,21 @@ convex_hull <- function(data) data[chull(data$NMDS1, data$NMDS2),]
 #######################################
 
 # function to plot map and study site
-plot_map <- function(mapdata, studysite){
+plot_map <- function(mapdata, studysite, smallmap){
   Fig1A <- ggplot(data = mapdata) +
   geom_sf(lwd = 0.01, fill = "grey23", color = "black", alpha = 0.75) +
   geom_point(data = studysite, aes(x = long, y = lat), color = "black", fill = "firebrick", stroke = 1, size = 3, shape = 23) +
   theme_bw() +
   theme(axis.title = element_blank(),
-        axis.text = element_text(color = "black", size = 12))
+        axis.text = element_text(color = "black", size = 12)) +
+    inset_element(p = smallmap,
+                  left = 0.65,
+                  bottom = 0.001,
+                  right = 0.999,
+                  top = 0.999)
 }
+
+
 
 # function to process depth data
 process_depth_data <- function(data){
@@ -46,8 +53,7 @@ plot_depth_dist_hoga <- function(data){
     theme_bw() +
     theme(legend.position = "none",
           axis.title.x = element_blank(),
-          axis.title.y = element_text(size = 12),
-          axis.text = element_text(color = "black", size = 12),
+          axis.title.y = element_text(color = "black", size = 12),
           strip.background = element_rect(fill="white"),
           strip.text = element_text(colour = 'black'),
           panel.grid.minor = element_blank(),
@@ -70,8 +76,7 @@ plot_depth_dist_pinn <- function(data){
           legend.key = element_rect(size = 2),
           legend.key.size = unit(0.75, "cm"),
           axis.title.x = element_blank(),
-          axis.title.y = element_text(size = 12),
-          axis.text = element_text(color = "black", size = 12),
+          axis.title.y = element_text(color = "black", size = 12),
           strip.background = element_rect(fill="white"),
           strip.text = element_text(colour = 'black'),
           panel.grid.minor = element_blank(),
@@ -81,22 +86,21 @@ plot_depth_dist_pinn <- function(data){
     ylab("Depth (m)") +
     add_fishape(family = "Labridae",
                 option = "Labroides_bicolor",
-                xmin = 0.35, xmax = 0.5, ymax = 10.25,
+                xmin = 0.38, xmax = 0.48, ymax = 10.6,
                 fill = fish(option = "Acanthurus_leucosternon", n = 5)[1]) +
     add_fishape(family = "Labridae",
                 option = "Labroides_dimidiatus",
-                xmin = 0.35, xmax = 0.5, ymax = 8.75,
+                xmin = 0.38, xmax = 0.48, ymax = 8.75,
                 fill = fish(option = "Acanthurus_leucosternon", n = 5)[3]) +
     add_fishape(family = "Labridae",
                 option = "Labroides_pectoralis",
-                xmin = 0.35, xmax = 0.5, ymax = 7.0,
+                xmin = 0.38, xmax = 0.48, ymax = 6.7,
                 fill = fish(option = "Acanthurus_leucosternon", n = 5)[5])
 }
 
 combine_figs <- function(f1,f2,f3){
-  Fig1 <- f1 / (f2 | f3) + plot_annotation(tag_levels = 'A') & 
-    theme(plot.tag = element_text(size = 14))
-  ggsave("output/plots/Fig1_Labroides.png", Fig1, width = 9, height = 9)
+  Fig1 <- f1 / (f2 | f3) + plot_annotation(tag_levels = 'A')
+  ggsave("output/plots/Fig1_Labroides.png", Fig1, width = 10, height = 10)
 }
 
 ################################
