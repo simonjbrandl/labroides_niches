@@ -14,31 +14,37 @@ figures presented in Côté & Brandl “Functional niches of cleanerfish
 species are mediated by habitat use, cleaning intensity, and client
 selectivity.” The abstract is pasted below:
 
-1.  The extreme diversity of tropical fish assemblages has led to
+1.  An animal’s functional niche is a complex, multidimensional
+    construct, mediated by an individual’s morphology, physiology, and
+    behaviour. Behavioural aspects of the niche can be difficult to
+    quantify, as their expression is often subtle and tailored to an
+    infinite number of different situations that involve sophisticated
+    mechanisms such as mutualisms, species dominance, or fear effects.
+2.  The extreme diversity of tropical fish assemblages has led to
     extensive debate over the extent to which species differ in their
     resource use and functional role. Ectoparasite removal by
-    cleanerfish species is among the most complex interspecific
-    interactions in vertebrates, but differences in the services
-    rendered by various species of cleanerfish, and potential
+    cleanerfish species is considered a behaviourally complex
+    interspecific interactions in vertebrates, but differences in the
+    services rendered by various species of cleanerfish, and potential
     consequences for the range of clients (i.e., resources) they
     attract, have rarely been examined.
-2.  Here, we quantify differences among three coexisting species of
+3.  Here, we quantify differences among three coexisting species of
     morphologically similar cleaner wrasses (Labroides bicolor, L.
-    dimidiatus, and L. pectoralis) in the global center of marine
+    dimidiatus, and L. pectoralis) in the global centre of marine
     biodiversity, the Coral Triangle.
-3.  We found no clear taxonomic partitioning of clients among
+4.  We found no clear taxonomic partitioning of clients among
     cleanerfishes. However, the three cleanerfish species exhibited
     distinct habitat preferences, and differed in their cleaning
     intensity: L. bicolor serviced the fewest species and clients,
     while L. pectoralis serviced the most clients and spent the most
     time cleaning.
-4.  Accordingly, L. pectoralis showed no preference for clients based on
+5.  Accordingly, L. pectoralis showed no preference for clients based on
     client size or abundance, while both L. bicolor and L. dimidiatus
     had a higher likelihood of interacting with clients based on their
     size (larger client species in L. bicolor, smaller client species
     in L. dimidiatus) and abundance (more abundant client species for
     both).
-5.  Our results suggest that the services rendered by the three species
+6.  Our results suggest that the services rendered by the three species
     of cleanerfishes differ in their spatial availability, quality, and
     selectivity, thus permitting the coexistence of these species
     despite their ecological similarity. This, in turn, creates a
@@ -80,7 +86,7 @@ The elements of this project include:
 
 1.  data: this folder includes all the raw data necessary to run the
     script.
-2.  output: this folder includesall outputs from the R-script.
+2.  output: this folder includes all outputs from the R-script.
 3.  r: this folder contains three .R files, `packages.R`, `functions.R`,
     and `plan.R`.  
     `packages.R` contains all packages needed, `functions.R` contains
@@ -116,6 +122,7 @@ Datasets
     7h00-9h00; noon = 11h00-13h00; pm = 15h00-17h00.
 
 4.  Cleaning interaction datasets:
+
     1.  clean.interac (labroides\_cleaninginteractions\_sjb.csv):  
         full dataset of interactions between client species (common name
         in column 1) and cleaner fishes (columns). Column names are
@@ -146,56 +153,54 @@ packages:
 
     ## ─ Session info ───────────────────────────────────────────────────────────────
     ##  setting  value                       
-    ##  version  R version 3.6.1 (2019-07-05)
-    ##  os       macOS Mojave 10.14.6        
-    ##  system   x86_64, darwin15.6.0        
+    ##  version  R version 4.0.3 (2020-10-10)
+    ##  os       macOS Big Sur 10.16         
+    ##  system   x86_64, darwin17.0          
     ##  ui       X11                         
     ##  language (EN)                        
     ##  collate  en_US.UTF-8                 
     ##  ctype    en_US.UTF-8                 
-    ##  tz       Europe/Paris                
-    ##  date     2020-09-06                  
+    ##  tz       Europe/Berlin               
+    ##  date     2021-04-26                  
     ## 
     ## ─ Packages ───────────────────────────────────────────────────────────────────
     ##  package     * version date       lib source        
-    ##  assertthat    0.2.1   2019-03-21 [1] CRAN (R 3.6.0)
-    ##  backports     1.1.5   2019-10-02 [1] CRAN (R 3.6.1)
-    ##  callr         3.4.2   2020-02-12 [1] CRAN (R 3.6.0)
-    ##  cli           2.0.2   2020-02-28 [1] CRAN (R 3.6.0)
-    ##  crayon        1.3.4   2017-09-16 [1] CRAN (R 3.6.0)
-    ##  desc          1.2.0   2018-05-01 [1] CRAN (R 3.6.0)
-    ##  devtools      2.2.1   2019-09-24 [1] CRAN (R 3.6.1)
-    ##  digest        0.6.25  2020-02-23 [1] CRAN (R 3.6.0)
-    ##  ellipsis      0.3.0   2019-09-20 [1] CRAN (R 3.6.0)
-    ##  evaluate      0.14    2019-05-28 [1] CRAN (R 3.6.0)
-    ##  fansi         0.4.1   2020-01-08 [1] CRAN (R 3.6.0)
-    ##  fs            1.3.1   2019-05-06 [1] CRAN (R 3.6.0)
-    ##  glue          1.3.2   2020-03-12 [1] CRAN (R 3.6.0)
-    ##  htmltools     0.4.0   2019-10-04 [1] CRAN (R 3.6.0)
-    ##  knitr         1.27    2020-01-16 [1] CRAN (R 3.6.1)
-    ##  magrittr      1.5     2014-11-22 [1] CRAN (R 3.6.0)
-    ##  memoise       1.1.0   2017-04-21 [1] CRAN (R 3.6.0)
-    ##  pkgbuild      1.0.6   2019-10-09 [1] CRAN (R 3.6.0)
-    ##  pkgload       1.0.2   2018-10-29 [1] CRAN (R 3.6.0)
-    ##  prettyunits   1.1.1   2020-01-24 [1] CRAN (R 3.6.0)
-    ##  processx      3.4.2   2020-02-09 [1] CRAN (R 3.6.0)
-    ##  ps            1.3.2   2020-02-13 [1] CRAN (R 3.6.0)
-    ##  R6            2.4.1   2019-11-12 [1] CRAN (R 3.6.0)
-    ##  Rcpp          1.0.4   2020-03-17 [1] CRAN (R 3.6.0)
-    ##  remotes       2.2.0   2020-07-21 [1] CRAN (R 3.6.2)
-    ##  rlang         0.4.5   2020-03-01 [1] CRAN (R 3.6.0)
-    ##  rmarkdown     2.0     2019-12-12 [1] CRAN (R 3.6.0)
-    ##  rprojroot     1.3-2   2018-01-03 [1] CRAN (R 3.6.0)
-    ##  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 3.6.0)
-    ##  stringi       1.4.6   2020-02-17 [1] CRAN (R 3.6.0)
-    ##  stringr       1.4.0   2019-02-10 [1] CRAN (R 3.6.0)
-    ##  testthat      2.3.2   2020-03-02 [1] CRAN (R 3.6.0)
-    ##  usethis       1.5.1   2019-07-04 [1] CRAN (R 3.6.0)
-    ##  withr         2.1.2   2018-03-15 [1] CRAN (R 3.6.0)
-    ##  xfun          0.12    2020-01-13 [1] CRAN (R 3.6.0)
-    ##  yaml          2.2.0   2018-07-25 [1] CRAN (R 3.6.0)
+    ##  assertthat    0.2.1   2019-03-21 [1] CRAN (R 4.0.2)
+    ##  callr         3.5.1   2020-10-13 [1] CRAN (R 4.0.2)
+    ##  cli           2.2.0   2020-11-20 [1] CRAN (R 4.0.3)
+    ##  crayon        1.3.4   2017-09-16 [1] CRAN (R 4.0.2)
+    ##  desc          1.2.0   2018-05-01 [1] CRAN (R 4.0.2)
+    ##  devtools      2.3.2   2020-09-18 [1] CRAN (R 4.0.2)
+    ##  digest        0.6.27  2020-10-24 [1] CRAN (R 4.0.2)
+    ##  ellipsis      0.3.1   2020-05-15 [1] CRAN (R 4.0.2)
+    ##  evaluate      0.14    2019-05-28 [1] CRAN (R 4.0.1)
+    ##  fansi         0.4.1   2020-01-08 [1] CRAN (R 4.0.2)
+    ##  fs            1.5.0   2020-07-31 [1] CRAN (R 4.0.2)
+    ##  glue          1.4.2   2020-08-27 [1] CRAN (R 4.0.2)
+    ##  htmltools     0.5.0   2020-06-16 [1] CRAN (R 4.0.2)
+    ##  knitr         1.30    2020-09-22 [1] CRAN (R 4.0.2)
+    ##  magrittr      2.0.1   2020-11-17 [1] CRAN (R 4.0.2)
+    ##  memoise       1.1.0   2017-04-21 [1] CRAN (R 4.0.2)
+    ##  pkgbuild      1.1.0   2020-07-13 [1] CRAN (R 4.0.2)
+    ##  pkgload       1.1.0   2020-05-29 [1] CRAN (R 4.0.2)
+    ##  prettyunits   1.1.1   2020-01-24 [1] CRAN (R 4.0.2)
+    ##  processx      3.4.4   2020-09-03 [1] CRAN (R 4.0.2)
+    ##  ps            1.4.0   2020-10-07 [1] CRAN (R 4.0.2)
+    ##  R6            2.5.0   2020-10-28 [1] CRAN (R 4.0.2)
+    ##  remotes       2.2.0   2020-07-21 [1] CRAN (R 4.0.2)
+    ##  rlang         0.4.10  2020-12-30 [1] CRAN (R 4.0.2)
+    ##  rmarkdown     2.5     2020-10-21 [1] CRAN (R 4.0.3)
+    ##  rprojroot     2.0.2   2020-11-15 [1] CRAN (R 4.0.2)
+    ##  sessioninfo   1.1.1   2018-11-05 [1] CRAN (R 4.0.2)
+    ##  stringi       1.5.3   2020-09-09 [1] CRAN (R 4.0.2)
+    ##  stringr       1.4.0   2019-02-10 [1] CRAN (R 4.0.2)
+    ##  testthat      3.0.0   2020-10-31 [1] CRAN (R 4.0.2)
+    ##  usethis       1.6.3   2020-09-17 [1] CRAN (R 4.0.2)
+    ##  withr         2.3.0   2020-09-22 [1] CRAN (R 4.0.2)
+    ##  xfun          0.19    2020-10-30 [1] CRAN (R 4.0.2)
+    ##  yaml          2.2.1   2020-02-01 [1] CRAN (R 4.0.2)
     ## 
-    ## [1] /Library/Frameworks/R.framework/Versions/3.6/Resources/library
+    ## [1] /Library/Frameworks/R.framework/Versions/4.0/Resources/library
 
 All code written by Simon J. Brandl
 (<a href="mailto:simonjbrandl@gmail.com" class="email">simonjbrandl@gmail.com</a>
