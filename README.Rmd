@@ -14,11 +14,13 @@ output:
 This repository contains the code and data to reproduce all tables and
 figures presented in Côté & Brandl “Functional niches of cleanerfish species are mediated by habitat use, cleaning intensity, and client selectivity.” The abstract is pasted below: 
 
-1.	The extreme diversity of tropical fish assemblages has led to extensive debate over the extent to which species differ in their resource use and functional role. Ectoparasite removal by cleanerfish species is among the most complex interspecific interactions in vertebrates, but differences in the services rendered by various species of cleanerfish, and potential consequences for the range of clients (i.e., resources) they attract, have rarely been examined. 
-2.	Here, we quantify differences among three coexisting species of morphologically similar cleaner wrasses (Labroides bicolor, L. dimidiatus, and L. pectoralis) in the global center of marine biodiversity, the Coral Triangle. 
-3.	We found no clear taxonomic partitioning of clients among cleanerfishes. However, the three cleanerfish species exhibited distinct habitat preferences, and differed in their cleaning intensity: L. bicolor serviced the fewest species and clients, while L. pectoralis serviced the most clients and spent the most time cleaning. 
-4.	Accordingly, L. pectoralis showed no preference for clients based on client size or abundance, while both L. bicolor and L. dimidiatus had a higher likelihood of interacting with clients based on their size (larger client species in L. bicolor, smaller client species in L. dimidiatus) and abundance (more abundant client species for both).
-5.	Our results suggest that the services rendered by the three species of cleanerfishes differ in their spatial availability, quality, and selectivity, thus permitting the coexistence of these species despite their ecological similarity. This, in turn, creates a complex seascape of species-specific cleaning services that underpins crucial biotic interactions in the ocean’s most diverse ecosystem. 
+1.	An animal’s functional niche is a complex, multidimensional construct, mediated by an individual’s morphology, physiology, and behaviour. Behavioural aspects of the niche can be difficult to quantify, as their expression is often subtle and tailored to an infinite number of different situations that involve sophisticated mechanisms such as mutualisms, species dominance, or fear effects. 
+2.	The extreme diversity of tropical fish assemblages has led to extensive debate over the extent to which species differ in their resource use and functional role. Ectoparasite removal by cleanerfish species is considered a behaviourally complex interspecific interactions in vertebrates, but differences in the services rendered by various species of cleanerfish, and potential consequences for the range of clients (i.e., resources) they attract, have rarely been examined. 
+3.	Here, we quantify differences among three coexisting species of morphologically similar cleaner wrasses (Labroides bicolor, L. dimidiatus, and L. pectoralis) in the global centre of marine biodiversity, the Coral Triangle. 
+4.	We found no clear taxonomic partitioning of clients among cleanerfishes. However, the three cleanerfish species exhibited distinct habitat preferences, and differed in their cleaning intensity: L. bicolor serviced the fewest species and clients, while L. pectoralis serviced the most clients and spent the most time cleaning. 
+5.	Accordingly, L. pectoralis showed no preference for clients based on client size or abundance, while both L. bicolor and L. dimidiatus had a higher likelihood of interacting with clients based on their size (larger client species in L. bicolor, smaller client species in L. dimidiatus) and abundance (more abundant client species for both).
+6.	Our results suggest that the services rendered by the three species of cleanerfishes differ in their spatial availability, quality, and selectivity, thus permitting the coexistence of these species despite their ecological similarity. This, in turn, creates a complex seascape of species-specific cleaning services that underpins crucial biotic interactions in the ocean’s most diverse ecosystem.
+
 
 ## Instructions
 All analyses for the current project were done in R, using the drake pipeline [drake](https://github.com/ropensci/drake). You can use drake to compile all models, figures, and tables.
@@ -46,7 +48,7 @@ The elements of this project include:
 
 1.  data: this folder includes all the raw data necessary to run the
     script.
-2.  output: this folder includesall outputs from the R-script.
+2.  output: this folder includes all outputs from the R-script.
 3.  r: this folder contains three .R files, `packages.R`, `functions.R`,
     and `plan.R`.  
     `packages.R` contains all packages needed, `functions.R` contains
